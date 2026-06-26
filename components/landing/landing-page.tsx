@@ -11,57 +11,57 @@ const researchSteps = [
 const answerSections = [
   {
     title: "Summary",
-    body: "Hyperliquid continues to sit at the intersection of perps liquidity, product velocity and exchange-native distribution."
+    body: "Hyperliquid sits at the intersection of perps liquidity, product velocity and exchange-native distribution."
   },
   {
     title: "Bull Case",
-    body: "If volume, fees and developer mindshare keep compounding, the protocol can become a durable trading venue."
+    body: "Volume, fees and builder mindshare can compound into a durable trading venue."
   },
   {
     title: "Bear Case",
-    body: "Execution risk, exchange competition and market-wide leverage cycles remain the primary pressure points."
+    body: "Execution risk, competition and leverage cycles remain the pressure points."
   },
   {
     title: "Risks",
-    body: "Liquidity concentration, smart contract exposure, incentive durability and regulatory sensitivity."
+    body: "Liquidity concentration, contract exposure, incentives and regulation."
   },
   {
     title: "What To Watch",
-    body: "Daily volume, open interest, fee capture, builder activity and user retention during volatility."
+    body: "Volume, open interest, fees, builder activity and retention."
   },
   {
     title: "Confidence",
-    body: "Medium. Strong directional read, but live source confirmation is required before investment decisions."
+    body: "Medium. Strong read, but live source confirmation matters."
   }
 ];
 
 const layerCards = [
   {
     title: "Crypto Intelligence Layer",
-    body: "1337 is built around context quality. Market, protocol and on-chain inputs are gathered before the model writes."
+    body: "Market, protocol and on-chain inputs are gathered before the model writes."
   },
   {
     title: "Research Before Answering",
-    body: "The product flow is deliberately analyst-like: classify intent, collect context, compress signal, then reason."
+    body: "Classify intent, collect context, compress signal, then reason."
   },
   {
     title: "Powered by 1337",
-    body: "The token is designed as computational fuel for successful requests, not a decorative add-on."
+    body: "The token is computational fuel for successful requests."
   }
 ];
 
 const tokenCards = [
   {
     title: "Every Query Consumes 1337",
-    body: "Successful AI requests consume 1337 based on the real cost of running the platform."
+    body: "Successful requests consume 1337 based on real platform cost."
   },
   {
     title: "50% Creator Fees Buyback & Burn",
-    body: "Half of creator fees are allocated to buying back and permanently burning 1337."
+    body: "Half of creator fees buy back and permanently burn 1337."
   },
   {
     title: "50% Treasury for AI Infrastructure and Growth",
-    body: "The treasury funds model providers, data providers, GPUs, development, security and growth."
+    body: "Treasury funds models, data, GPUs, development and growth."
   }
 ];
 
@@ -114,6 +114,9 @@ function Hero() {
     <section className="hero">
       <div className="shell hero-shell">
         <div className="hero-copy">
+          <div className="hero-logo-card" aria-hidden="true">
+            <Image src="/1337-logo.png" alt="" width={96} height={96} priority />
+          </div>
           <p className="eyebrow">1337 / The Crypto Intelligence Model.</p>
           <h1>1337 researches crypto before it answers.</h1>
           <p className="hero-subtext">
@@ -143,11 +146,11 @@ function HeroConsole() {
       <div className="console-header">
         <div className="console-brand">
           <span className="console-logo">
-            <Image src="/1337-logo.png" alt="" width={44} height={44} />
+            <Image src="/1337-logo.png" alt="" width={52} height={52} />
           </span>
           <div>
-            <p>1337 Research Session</p>
-            <span>Live intelligence preview</span>
+            <p>1337</p>
+            <span>Research session</span>
           </div>
         </div>
         <span className="status-pill">Researching</span>
@@ -155,20 +158,30 @@ function HeroConsole() {
 
       <div className="console-body">
         <div className="chat-column">
-          <div className="message user-message">
-            <span>User</span>
-            <p>Analyze Hyperliquid.</p>
+          <div className="message-row">
+            <div className="avatar user-avatar" aria-hidden="true">
+              U
+            </div>
+            <div className="message user-message">
+              <span>User</span>
+              <p>Analyze Hyperliquid.</p>
+            </div>
           </div>
 
-          <div className="message assistant-message">
-            <span>1337</span>
-            <div className="research-list">
-              {researchSteps.map((step) => (
-                <div className="research-step" key={step}>
-                  <i aria-hidden="true" />
-                  <p>{step}</p>
-                </div>
-              ))}
+          <div className="message-row">
+            <div className="avatar logo-avatar" aria-hidden="true">
+              <Image src="/1337-logo.png" alt="" width={28} height={28} />
+            </div>
+            <div className="message assistant-message">
+              <span>1337</span>
+              <div className="research-list">
+                {researchSteps.map((step) => (
+                  <div className="research-step" key={step}>
+                    <i aria-hidden="true" />
+                    <p>{step}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -203,7 +216,7 @@ function LayerSection() {
         <SectionHeader
           eyebrow="System"
           title="ChatGPT ease. Cursor focus. Linear polish. Perplexity-style research."
-          body="The interface is intentionally calm. The work happens below the surface: intent, source gathering, context compression and structured reasoning."
+          body="A calm interface for intent, source gathering, context compression and structured reasoning."
         />
 
         <div className="cards three-up">
@@ -227,7 +240,7 @@ function TokenSection() {
         <SectionHeader
           eyebrow="Economics"
           title="Usage powers the network."
-          body="1337 presents token utility as product infrastructure: clean, direct and tied to successful requests."
+          body="Token utility stays clean, direct and tied to successful requests."
         />
 
         <div className="cards three-up">
@@ -253,8 +266,7 @@ function RoadmapSection() {
             <p className="eyebrow">Roadmap</p>
             <h2>API, Telegram, Discord, Agents.</h2>
             <p>
-              The intelligence layer is designed to become a surface that users,
-              bots and builders can consume wherever crypto decisions happen.
+              The intelligence layer can move wherever crypto decisions happen.
             </p>
           </div>
 
