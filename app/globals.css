@@ -1491,6 +1491,10 @@ a {
   background: rgba(255, 255, 255, 0.032);
 }
 
+.persisted-message.pending {
+  opacity: 0.72;
+}
+
 .persisted-message span {
   display: block;
   margin-bottom: 8px;
@@ -1506,6 +1510,60 @@ a {
   color: var(--white);
   line-height: 1.62;
   white-space: pre-wrap;
+}
+
+.message-charge {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+}
+
+.message-charge strong,
+.message-charge code {
+  overflow-wrap: anywhere;
+}
+
+.message-charge strong {
+  color: var(--white);
+  font-size: 13px;
+}
+
+.message-charge span,
+.message-charge code {
+  color: var(--white-3);
+  font-size: 12px;
+}
+
+.message-charge code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.request-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 760px;
+}
+
+.request-status span {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.032);
+  color: var(--white-3);
+  font-size: 12px;
+  padding: 8px 10px;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.request-status span.active {
+  border-color: rgba(155, 92, 255, 0.34);
+  background: rgba(155, 92, 255, 0.08);
+  color: var(--white);
 }
 
 .prompt-form {
@@ -1599,9 +1657,27 @@ a {
 }
 
 .deposit-placeholder code {
+  overflow-wrap: anywhere;
   color: var(--white);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 13px;
+}
+
+.deposit-note {
+  margin: 0;
+  color: var(--white-3);
+  font-size: 13px;
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.app-secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 @media (max-width: 980px) {
@@ -1638,7 +1714,8 @@ a {
   }
 
   .prompt-form,
-  .settings-grid {
+  .settings-grid,
+  .modal-actions {
     grid-template-columns: 1fr;
   }
 

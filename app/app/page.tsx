@@ -26,7 +26,11 @@ export default async function AppPage({
       chats={chats}
       activeChatId={activeChat?.id ?? null}
     >
-      <ChatWindow activeChat={activeChat} messages={messages} />
+      <ChatWindow
+        key={activeChat?.id ?? "new-chat"}
+        activeChat={activeChat}
+        messages={messages}
+      />
     </AppFrame>
   );
 }

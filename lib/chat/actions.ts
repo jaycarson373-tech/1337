@@ -4,19 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { ensureProfile } from "@/lib/chat/queries";
+import { titleFromPrompt } from "@/lib/chat/title";
 
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
-}
-
-function titleFromPrompt(prompt: string) {
-  const compact = prompt.replace(/\s+/g, " ").trim();
-  if (!compact) {
-    return "New chat";
-  }
-
-  return compact.length > 48 ? `${compact.slice(0, 45)}...` : compact;
 }
 
 export async function createChatAction() {

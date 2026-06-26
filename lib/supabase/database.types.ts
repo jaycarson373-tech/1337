@@ -6,6 +6,14 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+type Relationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -49,15 +57,7 @@ export type Database = {
           encrypted_private_key?: string;
           created_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "user_wallets_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: Relationship[];
       };
       chats: {
         Row: {
@@ -78,15 +78,7 @@ export type Database = {
           title?: string | null;
           created_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "chats_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: Relationship[];
       };
       messages: {
         Row: {
@@ -122,22 +114,7 @@ export type Database = {
           burn_signature?: string | null;
           created_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "messages_chat_id_fkey";
-            columns: ["chat_id"];
-            isOneToOne: false;
-            referencedRelation: "chats";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "messages_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: Relationship[];
       };
       query_charges: {
         Row: {
@@ -145,13 +122,19 @@ export type Database = {
           user_id: string | null;
           chat_id: string | null;
           message_id: string | null;
+          request_run_id: string | null;
           status: string;
+          preflight_balance_raw: string | null;
+          estimated_cost_usd: number | null;
           actual_llm_usd: number | null;
           charged_usd: number | null;
           token_price_usd: number | null;
           burn_amount_ui: number | null;
           burn_amount_raw: string | null;
+          burn_destination: string | null;
           burn_signature: string | null;
+          idempotency_key: string | null;
+          pricing_inputs: Json;
           error: string | null;
           created_at: string;
           updated_at: string;
@@ -161,13 +144,19 @@ export type Database = {
           user_id?: string | null;
           chat_id?: string | null;
           message_id?: string | null;
+          request_run_id?: string | null;
           status: string;
+          preflight_balance_raw?: string | null;
+          estimated_cost_usd?: number | null;
           actual_llm_usd?: number | null;
           charged_usd?: number | null;
           token_price_usd?: number | null;
           burn_amount_ui?: number | null;
           burn_amount_raw?: string | null;
+          burn_destination?: string | null;
           burn_signature?: string | null;
+          idempotency_key?: string | null;
+          pricing_inputs?: Json;
           error?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -177,40 +166,24 @@ export type Database = {
           user_id?: string | null;
           chat_id?: string | null;
           message_id?: string | null;
+          request_run_id?: string | null;
           status?: string;
+          preflight_balance_raw?: string | null;
+          estimated_cost_usd?: number | null;
           actual_llm_usd?: number | null;
           charged_usd?: number | null;
           token_price_usd?: number | null;
           burn_amount_ui?: number | null;
           burn_amount_raw?: string | null;
+          burn_destination?: string | null;
           burn_signature?: string | null;
+          idempotency_key?: string | null;
+          pricing_inputs?: Json;
           error?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "query_charges_chat_id_fkey";
-            columns: ["chat_id"];
-            isOneToOne: false;
-            referencedRelation: "chats";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "query_charges_message_id_fkey";
-            columns: ["message_id"];
-            isOneToOne: false;
-            referencedRelation: "messages";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "query_charges_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: Relationship[];
       };
       balance_snapshots: {
         Row: {
@@ -240,15 +213,172 @@ export type Database = {
           ui_amount?: number;
           created_at?: string;
         };
-        Relationships: [
-          {
-            foreignKeyName: "balance_snapshots_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          }
-        ];
+        Relationships: Relationship[];
+      };
+      request_runs: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          chat_id: string | null;
+          message_id: string | null;
+          status: string;
+          intent: string | null;
+          degraded: boolean;
+          failure_reason: string | null;
+          idempotency_key: string;
+          transitions: Json;
+          metadata: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          chat_id?: string | null;
+          message_id?: string | null;
+          status: string;
+          intent?: string | null;
+          degraded?: boolean;
+          failure_reason?: string | null;
+          idempotency_key: string;
+          transitions?: Json;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          chat_id?: string | null;
+          message_id?: string | null;
+          status?: string;
+          intent?: string | null;
+          degraded?: boolean;
+          failure_reason?: string | null;
+          idempotency_key?: string;
+          transitions?: Json;
+          metadata?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: Relationship[];
+      };
+      adapter_runs: {
+        Row: {
+          id: string;
+          request_run_id: string | null;
+          adapter_id: string;
+          status: string;
+          source_count: number;
+          confidence: string | null;
+          error: string | null;
+          started_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          request_run_id?: string | null;
+          adapter_id: string;
+          status: string;
+          source_count?: number;
+          confidence?: string | null;
+          error?: string | null;
+          started_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          request_run_id?: string | null;
+          adapter_id?: string;
+          status?: string;
+          source_count?: number;
+          confidence?: string | null;
+          error?: string | null;
+          started_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: Relationship[];
+      };
+      burn_attempts: {
+        Row: {
+          id: string;
+          request_run_id: string | null;
+          user_id: string | null;
+          status: string;
+          burn_amount_raw: string;
+          burn_amount_ui: number;
+          token_mint: string;
+          signature: string | null;
+          idempotency_key: string;
+          error: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          request_run_id?: string | null;
+          user_id?: string | null;
+          status: string;
+          burn_amount_raw: string;
+          burn_amount_ui: number;
+          token_mint: string;
+          signature?: string | null;
+          idempotency_key: string;
+          error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          request_run_id?: string | null;
+          user_id?: string | null;
+          status?: string;
+          burn_amount_raw?: string;
+          burn_amount_ui?: number;
+          token_mint?: string;
+          signature?: string | null;
+          idempotency_key?: string;
+          error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: Relationship[];
+      };
+      model_usage: {
+        Row: {
+          id: string;
+          request_run_id: string | null;
+          provider: string;
+          model: string;
+          provider_request_id: string | null;
+          input_tokens: number | null;
+          output_tokens: number | null;
+          actual_cost_usd: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          request_run_id?: string | null;
+          provider: string;
+          model: string;
+          provider_request_id?: string | null;
+          input_tokens?: number | null;
+          output_tokens?: number | null;
+          actual_cost_usd?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          request_run_id?: string | null;
+          provider?: string;
+          model?: string;
+          provider_request_id?: string | null;
+          input_tokens?: number | null;
+          output_tokens?: number | null;
+          actual_cost_usd?: number | null;
+          created_at?: string;
+        };
+        Relationships: Relationship[];
       };
     };
     Views: Record<string, never>;
