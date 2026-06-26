@@ -7,3 +7,10 @@ export type AppUser = {
   id: string;
   email: string | null;
 };
+
+export type UsageSummary = {
+  burnedToday: number;
+  confidenceScore: string;
+  dataFreshness: string;
+  todaysQueries: number;
+};

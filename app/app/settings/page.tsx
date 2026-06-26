@@ -1,6 +1,6 @@
 import { AppFrame } from "@/components/app/app-frame";
 import { requireUser } from "@/lib/auth/session";
-import { ensureProfile, listChats } from "@/lib/chat/queries";
+import { ensureProfile, getUsageSummary, listChats } from "@/lib/chat/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -9,12 +9,14 @@ export default async function SettingsPage() {
   await ensureProfile(supabase, user.id, user.email ?? null);
 
   const chats = await listChats(supabase, user.id);
+  const usageSummary = await getUsageSummary(supabase, user.id);
 
   return (
     <AppFrame
       user={{ id: user.id, email: user.email ?? null }}
       chats={chats}
       activeChatId={null}
+      usageSummary={usageSummary}
     >
       <section className="settings-panel">
         <div>

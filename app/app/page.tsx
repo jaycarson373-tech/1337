@@ -1,7 +1,12 @@
 import { AppFrame } from "@/components/app/app-frame";
 import { ChatWindow } from "@/components/app/chat-window";
 import { requireUser } from "@/lib/auth/session";
-import { ensureProfile, listChats, listMessages } from "@/lib/chat/queries";
+import {
+  ensureProfile,
+  getUsageSummary,
+  listChats,
+  listMessages
+} from "@/lib/chat/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +24,14 @@ export default async function AppPage({
   const activeChat =
     chats.find((chat) => chat.id === requestedChat) ?? chats[0] ?? null;
   const messages = await listMessages(supabase, user.id, activeChat?.id ?? null);
+  const usageSummary = await getUsageSummary(supabase, user.id);
 
   return (
     <AppFrame
       user={{ id: user.id, email: user.email ?? null }}
       chats={chats}
       activeChatId={activeChat?.id ?? null}
+      usageSummary={usageSummary}
     >
       <ChatWindow
         key={activeChat?.id ?? "new-chat"}
