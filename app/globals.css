@@ -298,9 +298,12 @@ a {
 }
 
 .ca-pill {
+  max-width: min(38vw, 430px);
   border: 1px solid rgba(155, 92, 255, 0.24);
   background: rgba(155, 92, 255, 0.055);
   color: var(--white-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
