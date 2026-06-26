@@ -1,59 +1,65 @@
 import Image from "next/image";
 
 const researchSteps = [
-  "Scanning market data...",
-  "Checking liquidity...",
-  "Reading protocol metrics...",
-  "Compressing context...",
-  "Reasoning..."
+  "Scanning market data",
+  "Checking liquidity",
+  "Reading protocol metrics",
+  "Compressing context",
+  "Reasoning"
 ];
 
 const answerSections = [
-  "Summary",
-  "Bull Case",
-  "Bear Case",
-  "Risks",
-  "What To Watch",
-  "Confidence"
-];
-
-const intelligenceLayer = [
   {
-    tag: "01",
-    title: "Live Market Context",
-    body: "Built to pull price, volume, liquidity and exchange context before the model starts writing."
+    title: "Summary",
+    body: "Hyperliquid continues to sit at the intersection of perps liquidity, product velocity and exchange-native distribution."
   },
   {
-    tag: "02",
-    title: "On-chain Awareness",
-    body: "Designed around wallet, protocol and activity signals instead of generic web summaries."
+    title: "Bull Case",
+    body: "If volume, fees and developer mindshare keep compounding, the protocol can become a durable trading venue."
   },
   {
-    tag: "03",
-    title: "Compressed Research",
-    body: "Raw information becomes structured context the model can reason over without drowning in noise."
+    title: "Bear Case",
+    body: "Execution risk, exchange competition and market-wide leverage cycles remain the primary pressure points."
+  },
+  {
+    title: "Risks",
+    body: "Liquidity concentration, smart contract exposure, incentive durability and regulatory sensitivity."
+  },
+  {
+    title: "What To Watch",
+    body: "Daily volume, open interest, fee capture, builder activity and user retention during volatility."
+  },
+  {
+    title: "Confidence",
+    body: "Medium. Strong directional read, but live source confirmation is required before investment decisions."
   }
 ];
 
-const researchPrinciples = [
-  "Intent first. Data second. Answer third.",
-  "Facts, interpretation, speculation and unknowns stay separated.",
-  "Missing context lowers confidence instead of becoming invented certainty."
+const layerCards = [
+  {
+    title: "Crypto Intelligence Layer",
+    body: "1337 is built around context quality. Market, protocol and on-chain inputs are gathered before the model writes."
+  },
+  {
+    title: "Research Before Answering",
+    body: "The product flow is deliberately analyst-like: classify intent, collect context, compress signal, then reason."
+  },
+  {
+    title: "Powered by 1337",
+    body: "The token is designed as computational fuel for successful requests, not a decorative add-on."
+  }
 ];
 
-const tokenUtility = [
+const tokenCards = [
   {
-    tag: "1337",
     title: "Every Query Consumes 1337",
-    body: "Users deposit 1337 and successful requests consume token based on the real cost of the AI request."
+    body: "Successful AI requests consume 1337 based on the real cost of running the platform."
   },
   {
-    tag: "50%",
     title: "50% Creator Fees Buyback & Burn",
-    body: "Platform economics route half of creator fees toward buying back and permanently burning 1337."
+    body: "Half of creator fees are allocated to buying back and permanently burning 1337."
   },
   {
-    tag: "50%",
     title: "50% Treasury for AI Infrastructure and Growth",
     body: "The treasury funds model providers, data providers, GPUs, development, security and growth."
   }
@@ -64,12 +70,10 @@ const roadmap = ["API", "Telegram", "Discord", "Agents"];
 export function LandingPage() {
   return (
     <main className="page">
-      <div aria-hidden="true" className="background-grid" />
-      <div aria-hidden="true" className="background-aura" />
-      <div aria-hidden="true" className="top-beam" />
+      <div className="ambient" aria-hidden="true" />
       <Header />
       <Hero />
-      <IntelligenceSection />
+      <LayerSection />
       <TokenSection />
       <RoadmapSection />
       <Footer />
@@ -83,15 +87,9 @@ function Header() {
       <nav className="shell nav" aria-label="Main navigation">
         <a href="#" className="brand" aria-label="1337 home">
           <span className="brand-mark">
-            <Image
-              src="/1337-logo.png"
-              alt=""
-              width={84}
-              height={84}
-              priority
-            />
+            <Image src="/1337-logo.png" alt="" width={64} height={64} priority />
           </span>
-          <span>
+          <span className="brand-copy">
             <span className="brand-name">1337</span>
             <span className="brand-subtitle">The Crypto Intelligence Model</span>
           </span>
@@ -105,7 +103,6 @@ function Header() {
 
         <a className="nav-cta" href="#how-it-works">
           Launch 1337
-          <span aria-hidden="true">-&gt;</span>
         </a>
       </nav>
     </header>
@@ -115,28 +112,10 @@ function Header() {
 function Hero() {
   return (
     <section className="hero">
-      <div className="hero-logo-orbit" aria-hidden="true">
-        <Image
-          src="/1337-logo.png"
-          alt=""
-          fill
-          className="hero-logo"
-          priority
-          sizes="(max-width: 768px) 96vw, 720px"
-        />
-      </div>
-
-      <div className="shell hero-content">
+      <div className="shell hero-shell">
         <div className="hero-copy">
-          <div className="eyebrow">
-            <span className="spark" aria-hidden="true" />
-            <span>1337</span>
-            <span className="spark" aria-hidden="true" />
-            <span>The Crypto Intelligence Model.</span>
-          </div>
-
+          <p className="eyebrow">1337 / The Crypto Intelligence Model.</p>
           <h1>1337 researches crypto before it answers.</h1>
-
           <p className="hero-subtext">
             Ask anything about crypto. 1337 pulls live market, on-chain and
             protocol data into a Crypto Intelligence Layer before answering.
@@ -152,119 +131,89 @@ function Hero() {
           </div>
         </div>
 
-        <div id="how-it-works" className="preview-grid">
-          <ChatPreview />
-          <AnswerCard />
-        </div>
+        <HeroConsole />
       </div>
     </section>
   );
 }
 
-function ChatPreview() {
+function HeroConsole() {
   return (
-    <section className="glass-panel terminal" aria-label="1337 research preview">
-      <div className="panel-top">
-        <div className="window-dots" aria-hidden="true">
-          <span />
-          <span />
-          <span />
+    <section id="how-it-works" className="console" aria-label="1337 chat preview">
+      <div className="console-header">
+        <div className="console-brand">
+          <span className="console-logo">
+            <Image src="/1337-logo.png" alt="" width={44} height={44} />
+          </span>
+          <div>
+            <p>1337 Research Session</p>
+            <span>Live intelligence preview</span>
+          </div>
         </div>
-        <span className="panel-kicker">research session</span>
+        <span className="status-pill">Researching</span>
       </div>
 
-      <div>
-        <p className="label">User</p>
-        <div className="user-message">Analyze Hyperliquid.</div>
-      </div>
+      <div className="console-body">
+        <div className="chat-column">
+          <div className="message user-message">
+            <span>User</span>
+            <p>Analyze Hyperliquid.</p>
+          </div>
 
-      <div className="research-block">
-        <p className="label">1337</p>
-        <div className="research-steps">
-          {researchSteps.map((step) => (
-            <div className="research-step" key={step}>
-              <span className="pulse-dot" aria-hidden="true" />
-              {step}
+          <div className="message assistant-message">
+            <span>1337</span>
+            <div className="research-list">
+              {researchSteps.map((step) => (
+                <div className="research-step" key={step}>
+                  <i aria-hidden="true" />
+                  <p>{step}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+        </div>
+
+        <div className="answer-column">
+          <div className="answer-topline">
+            <div>
+              <p className="answer-label">Polished answer card</p>
+              <h2>Hyperliquid analysis</h2>
+            </div>
+            <span>Confidence: Medium</span>
+          </div>
+
+          <div className="answer-grid">
+            {answerSections.map((section) => (
+              <article className="answer-section" key={section.title}>
+                <h3>{section.title}</h3>
+                <p>{section.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function AnswerCard() {
-  return (
-    <section className="glass-panel answer-card" aria-label="1337 answer preview">
-      <div className="panel-top">
-        <div>
-          <p className="answer-title">Polished answer card</p>
-          <p className="answer-subtitle">context compressed into analyst format</p>
-        </div>
-        <span className="confidence-pill">Confidence: Medium</span>
-      </div>
-
-      <div className="answer-grid">
-        {answerSections.map((section) => (
-          <article className="answer-section" key={section}>
-            <h3>
-              <span className="check" aria-hidden="true" />
-              {section}
-            </h3>
-            <div className="skeleton" aria-hidden="true">
-              <span />
-              <span />
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function IntelligenceSection() {
+function LayerSection() {
   return (
     <section className="section">
       <div className="shell">
         <SectionHeader
-          eyebrow="Crypto Intelligence Layer"
-          title="Research Before Answering"
-          body="1337 is built around a crypto-specific context layer. The model is only useful after the system has gathered, filtered and compressed the right information."
+          eyebrow="System"
+          title="ChatGPT ease. Cursor focus. Linear polish. Perplexity-style research."
+          body="The interface is intentionally calm. The work happens below the surface: intent, source gathering, context compression and structured reasoning."
         />
 
-        <div className="card-grid">
-          {intelligenceLayer.map((item) => (
-            <article className="glass-panel info-card" key={item.title}>
-              <span className="card-icon">{item.tag}</span>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
+        <div className="cards three-up">
+          {layerCards.map((card) => (
+            <article className="card" key={card.title}>
+              <span className="card-rule" aria-hidden="true" />
+              <h3>{card.title}</h3>
+              <p>{card.body}</p>
             </article>
           ))}
-        </div>
-
-        <div className="principles-grid">
-          <article className="glass-panel info-card">
-            <span className="card-icon">AI</span>
-            <h3>A pipeline, not a prompt trick.</h3>
-            <p>
-              The landing experience previews the future product: intent,
-              retrieval, compression and reasoning. This page is visual only,
-              but the story matches the locked architecture.
-            </p>
-          </article>
-
-          <article className="glass-panel info-card">
-            <span className="card-icon">RISK</span>
-            <h3>Built to say what it knows.</h3>
-            <div className="principle-list">
-              {researchPrinciples.map((principle) => (
-                <div className="principle" key={principle}>
-                  <span className="small-dot" aria-hidden="true" />
-                  {principle}
-                </div>
-              ))}
-            </div>
-          </article>
         </div>
       </div>
     </section>
@@ -273,20 +222,20 @@ function IntelligenceSection() {
 
 function TokenSection() {
   return (
-    <section id="powered" className="section">
+    <section id="powered" className="section section-tight">
       <div className="shell">
         <SectionHeader
-          eyebrow="Powered by 1337"
-          title="The token is computational fuel."
-          body="1337 is designed so product usage drives token utility. Successful requests consume 1337, and platform economics route value back into the system."
+          eyebrow="Economics"
+          title="Usage powers the network."
+          body="1337 presents token utility as product infrastructure: clean, direct and tied to successful requests."
         />
 
-        <div className="card-grid">
-          {tokenUtility.map((item) => (
-            <article className="glass-panel info-card" key={item.title}>
-              <span className="card-icon">{item.tag}</span>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
+        <div className="cards three-up">
+          {tokenCards.map((card) => (
+            <article className="card" key={card.title}>
+              <span className="card-rule" aria-hidden="true" />
+              <h3>{card.title}</h3>
+              <p>{card.body}</p>
             </article>
           ))}
         </div>
@@ -299,28 +248,22 @@ function RoadmapSection() {
   return (
     <section id="roadmap" className="section">
       <div className="shell">
-        <div className="glass-panel roadmap-panel">
-          <div className="purple-line" />
-          <div className="roadmap-content">
-            <div className="section-header">
-              <p className="section-eyebrow">Roadmap</p>
-              <h2>API, Telegram, Discord, Agents.</h2>
-              <p className="section-copy">
-                The first public surface is the landing page. The product path
-                expands toward integrations that let traders, builders and
-                agents consume the same intelligence layer everywhere.
-              </p>
-            </div>
+        <div className="roadmap-panel">
+          <div>
+            <p className="eyebrow">Roadmap</p>
+            <h2>API, Telegram, Discord, Agents.</h2>
+            <p>
+              The intelligence layer is designed to become a surface that users,
+              bots and builders can consume wherever crypto decisions happen.
+            </p>
+          </div>
 
-            <div className="roadmap-grid">
-              {roadmap.map((item) => (
-                <article className="roadmap-card" key={item}>
-                  <span className="card-icon">NEXT</span>
-                  <h3>{item}</h3>
-                  <p>Future phase</p>
-                </article>
-              ))}
-            </div>
+          <div className="roadmap-grid">
+            {roadmap.map((item) => (
+              <article key={item}>
+                <span>{item}</span>
+              </article>
+            ))}
           </div>
         </div>
       </div>
@@ -339,9 +282,9 @@ function SectionHeader({
 }) {
   return (
     <div className="section-header">
-      <p className="section-eyebrow">{eyebrow}</p>
+      <p className="eyebrow">{eyebrow}</p>
       <h2>{title}</h2>
-      <p className="section-copy">{body}</p>
+      <p>{body}</p>
     </div>
   );
 }
@@ -351,13 +294,7 @@ function Footer() {
     <footer className="footer">
       <div className="shell footer-inner">
         <div className="footer-brand">
-          <Image
-            src="/1337-logo.png"
-            alt=""
-            width={32}
-            height={32}
-            className="footer-logo"
-          />
+          <Image src="/1337-logo.png" alt="" width={28} height={28} />
           <span>1337</span>
         </div>
         <p>The Crypto Intelligence Model.</p>
