@@ -1,14 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getSiteUrl } from "@/lib/supabase/config";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
+  const origin = requestUrl.origin;
   const code = requestUrl.searchParams.get("code");
   const requestedNext = requestUrl.searchParams.get("next") || "/app";
   const next = requestedNext.startsWith("/") ? requestedNext : "/app";
   const supabase = await createServerSupabaseClient();
-  const loginUrl = new URL("/login", getSiteUrl());
+  const loginUrl = new URL("/login", origin);
 
   if (!supabase) {
     loginUrl.searchParams.set("missing_config", "1");
@@ -27,5 +27,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.redirect(new URL(next, getSiteUrl()));
+  return NextResponse.redirect(new URL(next, origin));
 }
