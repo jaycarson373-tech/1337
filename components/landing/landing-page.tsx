@@ -71,6 +71,7 @@ export function LandingPage() {
   return (
     <main className="page">
       <div className="ambient" aria-hidden="true" />
+      <BackgroundGraphics />
       <Header />
       <Hero />
       <LayerSection />
@@ -78,6 +79,18 @@ export function LandingPage() {
       <RoadmapSection />
       <Footer />
     </main>
+  );
+}
+
+function BackgroundGraphics() {
+  return (
+    <div className="site-background" aria-hidden="true">
+      <div className="bg-graphic bg-graphic-hero" />
+      <div className="bg-graphic bg-graphic-layer" />
+      <div className="bg-graphic bg-graphic-token" />
+      <div className="bg-graphic bg-graphic-roadmap" />
+      <div className="bg-graphic bg-graphic-rain" />
+    </div>
   );
 }
 
