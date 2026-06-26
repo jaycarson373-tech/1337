@@ -5,10 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "lint": "eslint .",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "next": "^16.2.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
@@ -17,6 +20,8 @@
     "@types/node": "20.19.25",
     "@types/react": "19.1.17",
     "@types/react-dom": "19.1.11",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.9",
     "typescript": "5.9.3"
   }
 }
