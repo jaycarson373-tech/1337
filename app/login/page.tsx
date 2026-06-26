@@ -6,7 +6,7 @@ import { getAuthState } from "@/lib/auth/session";
 export default async function LoginPage({
   searchParams
 }: {
-  searchParams: Promise<{ missing_config?: string }>;
+  searchParams: Promise<{ auth_error?: string; missing_config?: string }>;
 }) {
   const auth = await getAuthState();
 
@@ -22,7 +22,10 @@ export default async function LoginPage({
         <Link className="auth-brand" href="/">
           1337
         </Link>
-        <LoginForm missingConfig={!auth.configured || params.missing_config === "1"} />
+        <LoginForm
+          authError={params.auth_error}
+          missingConfig={!auth.configured || params.missing_config === "1"}
+        />
       </div>
     </main>
   );

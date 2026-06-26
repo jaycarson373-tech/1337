@@ -1127,6 +1127,37 @@ a {
   font-size: 13px;
 }
 
+.auth-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth-code-header button {
+  border: 0;
+  background: transparent;
+  color: var(--white-2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 680;
+  min-height: auto;
+  padding: 0;
+  transition: color 160ms ease;
+}
+
+.auth-code-header button:hover {
+  box-shadow: none;
+  color: var(--white);
+  transform: none;
+}
+
+.auth-code-header button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .auth-form input,
 .rename-form input,
 .prompt-form textarea {
@@ -1144,6 +1175,13 @@ a {
 .auth-form input {
   min-height: 48px;
   padding: 0 15px;
+}
+
+.auth-form input[autocomplete="one-time-code"] {
+  font-size: 22px;
+  font-weight: 720;
+  letter-spacing: 0.34em;
+  text-align: center;
 }
 
 .auth-form input:focus,

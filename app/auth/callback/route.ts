@@ -5,11 +5,26 @@ import { getSiteUrl } from "@/lib/supabase/config";
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/app";
+  const requestedNext = requestUrl.searchParams.get("next") || "/app";
+  const next = requestedNext.startsWith("/") ? requestedNext : "/app";
   const supabase = await createServerSupabaseClient();
+  const loginUrl = new URL("/login", getSiteUrl());
 
-  if (code && supabase) {
-    await supabase.auth.exchangeCodeForSession(code);
+  if (!supabase) {
+    loginUrl.searchParams.set("missing_config", "1");
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (!code) {
+    loginUrl.searchParams.set("auth_error", "Authentication code was missing. Try signing in again.");
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    loginUrl.searchParams.set("auth_error", error.message);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.redirect(new URL(next, getSiteUrl()));
