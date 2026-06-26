@@ -130,7 +130,7 @@ function Header() {
           <a href="#roadmap">Roadmap</a>
         </div>
 
-        <a className="nav-cta" href="#how-it-works">
+        <a className="nav-cta" href="/app">
           Launch 1337
         </a>
       </nav>
@@ -163,7 +163,7 @@ function Hero() {
           </p>
 
           <div className="hero-actions">
-            <a className="button-primary" href="#how-it-works">
+            <a className="button-primary" href="/app">
               Launch 1337
             </a>
             <a className="button-secondary" href="#how-it-works">
