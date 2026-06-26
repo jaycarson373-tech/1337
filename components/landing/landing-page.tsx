@@ -131,12 +131,6 @@ function Header() {
         </div>
 
         <div className="nav-actions">
-          <span
-            className="ca-pill"
-            title="AA27WpFxVFf4cMdx2Xi2thqPujw6RTMi9gZiUcDxpump"
-          >
-            CA: AA27WpFxVFf4cMdx2Xi2thqPujw6RTMi9gZiUcDxpump
-          </span>
           <a
             className="social-link"
             href="https://x.com/1337CI_"
