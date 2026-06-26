@@ -67,6 +67,15 @@ const tokenCards = [
 
 const roadmap = ["API", "Telegram", "Discord", "Agents"];
 
+const heroSignals = ["Market data", "Liquidity", "On-chain", "Protocol metrics"];
+
+const sourceSystems = [
+  ["DexScreener", "Market"],
+  ["Solana RPC", "On-chain"],
+  ["CoinGecko", "Prices"],
+  ["DefiLlama", "Protocol"]
+];
+
 export function LandingPage() {
   return (
     <main className="page">
@@ -125,13 +134,22 @@ function Header() {
 function Hero() {
   return (
     <section className="hero">
+      <div className="hero-datacenter" aria-hidden="true" />
       <div className="shell hero-shell">
         <div className="hero-copy">
+          <div className="hero-terminal-strip" aria-label="Crypto intelligence terminal status">
+            <span className="terminal-dot" aria-hidden="true" />
+            <span>Crypto Intelligence Terminal</span>
+            <strong>Live research stack</strong>
+          </div>
           <div className="hero-logo-card" aria-hidden="true">
             <Image src="/1337-logo.png" alt="" width={96} height={96} priority />
           </div>
           <p className="eyebrow">1337 / The Crypto Intelligence Model.</p>
-          <h1>1337 researches crypto before it answers.</h1>
+          <h1>
+            <span>1337 researches crypto</span>
+            <span>before it answers.</span>
+          </h1>
           <p className="hero-subtext">
             Ask anything about crypto. 1337 pulls live market, on-chain and
             protocol data into a Crypto Intelligence Layer before answering.
@@ -144,6 +162,15 @@ function Hero() {
             <a className="button-secondary" href="#how-it-works">
               How It Works
             </a>
+          </div>
+
+          <div className="hero-signal-row" aria-label="Crypto intelligence data layers">
+            {heroSignals.map((signal) => (
+              <span key={signal}>
+                <i aria-hidden="true" />
+                {signal}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -166,7 +193,19 @@ function HeroConsole() {
             <span>Research session</span>
           </div>
         </div>
-        <span className="status-pill">Researching</span>
+        <span className="status-pill">
+          <i aria-hidden="true" />
+          Researching
+        </span>
+      </div>
+
+      <div className="console-systems" aria-label="Data sources preview">
+        {sourceSystems.map(([name, detail]) => (
+          <div key={name}>
+            <span>{name}</span>
+            <strong>{detail}</strong>
+          </div>
+        ))}
       </div>
 
       <div className="console-body">
@@ -202,7 +241,7 @@ function HeroConsole() {
         <div className="answer-column">
           <div className="answer-topline">
             <div>
-              <p className="answer-label">Polished answer card</p>
+              <p className="answer-label">Institutional research brief</p>
               <h2>Hyperliquid analysis</h2>
             </div>
             <span>Confidence: Medium</span>
@@ -228,7 +267,7 @@ function LayerSection() {
       <div className="shell">
         <SectionHeader
           eyebrow="System"
-          title="ChatGPT ease. Cursor focus. Linear polish. Perplexity-style research."
+          title="A crypto-native research workstation."
           body="A calm interface for intent, source gathering, context compression and structured reasoning."
         />
 
