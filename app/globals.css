@@ -249,7 +249,15 @@ a {
   color: var(--white);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .nav-cta,
+.social-link,
+.ca-pill,
 .button-primary,
 .button-secondary {
   display: inline-flex;
@@ -269,6 +277,7 @@ a {
 }
 
 .nav-cta,
+.social-link,
 .button-secondary {
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.035);
@@ -276,10 +285,23 @@ a {
 }
 
 .nav-cta:hover,
+.social-link:hover,
 .button-secondary:hover {
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.065);
   transform: translateY(-1px);
+}
+
+.social-link {
+  width: 42px;
+  padding: 0;
+}
+
+.ca-pill {
+  border: 1px solid rgba(155, 92, 255, 0.24);
+  background: rgba(155, 92, 255, 0.055);
+  color: var(--white-2);
+  white-space: nowrap;
 }
 
 .hero {
@@ -1414,9 +1436,16 @@ a {
     height: 60px;
   }
 
-  .nav-cta {
+  .nav-cta,
+  .social-link,
+  .ca-pill {
     min-height: 36px;
     padding: 0 13px;
+  }
+
+  .social-link {
+    width: 36px;
+    padding: 0;
   }
 
   .hero {

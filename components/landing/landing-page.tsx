@@ -130,9 +130,21 @@ function Header() {
           <a href="#roadmap">Roadmap</a>
         </div>
 
-        <a className="nav-cta" href="/app">
-          Launch 1337
-        </a>
+        <div className="nav-actions">
+          <span className="ca-pill">CA: soon</span>
+          <a
+            className="social-link"
+            href="https://x.com/1337CI_"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="1337 on X"
+          >
+            X
+          </a>
+          <a className="nav-cta" href="/app">
+            Launch 1337
+          </a>
+        </div>
       </nav>
     </header>
   );
