@@ -76,6 +76,13 @@ const sourceSystems = [
   ["DefiLlama", "Protocol"]
 ];
 
+const loadingSteps = [
+  "Checking 1337 balance",
+  "Estimating USD query cost",
+  "Converting cost into 1337",
+  "Burning only after success"
+];
+
 export function LandingPage() {
   return (
     <main className="page">
@@ -174,7 +181,62 @@ function Hero() {
           </div>
         </div>
 
+        <div className="hero-preview-grid">
+          <BrandBanner />
+          <WebsitePreview />
+        </div>
+
         <HeroConsole />
+      </div>
+    </section>
+  );
+}
+
+function BrandBanner() {
+  return (
+    <section className="brand-banner-card" aria-label="1337 brand banner">
+      <Image
+        src="/1337-banner.png"
+        alt="The Crypto Intelligence Model banner"
+        width={1500}
+        height={500}
+        priority
+      />
+    </section>
+  );
+}
+
+function WebsitePreview() {
+  return (
+    <section className="launch-preview" aria-label="1337 loading screen preview">
+      <div className="preview-browser-bar">
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <strong>1337.app / launch</strong>
+      </div>
+
+      <div className="launch-screen">
+        <div className="launch-logo-ring">
+          <Image src="/1337-logo.png" alt="" width={88} height={88} />
+        </div>
+        <p className="answer-label">Initializing token-powered intelligence</p>
+        <h2>Loading Crypto Intelligence Layer</h2>
+        <p>
+          1337 calculates real request cost, converts it to token consumption,
+          and burns only after a successful answer.
+        </p>
+        <div className="loading-track" aria-hidden="true">
+          <span />
+        </div>
+        <div className="loading-steps">
+          {loadingSteps.map((step) => (
+            <span key={step}>
+              <i aria-hidden="true" />
+              {step}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );
