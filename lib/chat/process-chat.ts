@@ -668,7 +668,7 @@ export async function processChatRequest({
       throw new Error("Burn/send transaction was not confirmed.");
     }
 
-    const confirmedBurnSignature = burnSignature;
+    const burnSignatureForMessage = burnSignature;
 
     const finalAnswer = [
       llmResult.answer,
@@ -678,7 +678,7 @@ export async function processChatRequest({
       `1337 consumed: ${pricing.burnAmountUi.toLocaleString(undefined, {
         maximumFractionDigits: 6
       })}`,
-      `Transaction: ${confirmedBurnSignature}`
+      `Transaction: ${burnSignatureForMessage}`
     ].join("\n");
 
     const { data: assistantMessage, error: assistantError } = await supabase
@@ -690,7 +690,7 @@ export async function processChatRequest({
         content: finalAnswer,
         cost_usd: pricing.chargedUsd,
         burned_1337: pricing.burnAmountUi,
-        burn_signature: confirmedBurnSignature
+        burn_signature: burnSignatureForMessage
       })
       .select("*")
       .single();
