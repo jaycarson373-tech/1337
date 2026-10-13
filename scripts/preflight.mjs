@@ -5,7 +5,27 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ENV_FILES = [".env", ".env.local", ".env.production", ".env.production.local"];
-const BASE58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+function isSolanaPublicKey(value) {
+  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value)) return false;
+
+  let decoded = 0n;
+  for (const character of value) {
+    const digit = BASE58_ALPHABET.indexOf(character);
+    if (digit < 0) return false;
+    decoded = decoded * 58n + BigInt(digit);
+  }
+
+  let byteLength = 0;
+  while (decoded > 0n) {
+    byteLength += 1;
+    decoded >>= 8n;
+  }
+
+  const leadingZeroBytes = value.match(/^1*/)?.[0].length ?? 0;
+  return leadingZeroBytes + byteLength === 32;
+}
 
 export function inspectEnvironment(env) {
   const failures = [];
@@ -61,8 +81,8 @@ export function inspectEnvironment(env) {
   requireHttps("SOLANA_RPC_URL");
 
   for (const name of ["TOKEN_MINT_1337", "BURN_WALLET_ADDRESS"]) {
-    if (BASE58.test(value(name))) passed.push(name);
-    else failures.push(`${name} must be a valid-looking Solana base58 address.`);
+    if (isSolanaPublicKey(value(name))) passed.push(name);
+    else failures.push(`${name} must decode to a 32-byte Solana public key.`);
   }
 
   if (value("WALLET_ENCRYPTION_SECRET").length >= 32) passed.push("WALLET_ENCRYPTION_SECRET length");

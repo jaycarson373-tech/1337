@@ -46,6 +46,14 @@ test("preflight rejects insecure URLs, malformed addresses, weak encryption secr
   assert.ok(report.failures.includes("MIN_QUERY_USD cannot exceed MAX_QUERY_USD."));
 });
 
+test("preflight rejects base58 strings that do not decode to a 32-byte public key", () => {
+  const report = inspectEnvironment({
+    ...valid,
+    TOKEN_MINT_1337: "111111111111111111111111111111111"
+  });
+  assert.ok(report.failures.includes("TOKEN_MINT_1337 must decode to a 32-byte Solana public key."));
+});
+
 test("preflight reports missing settings by name without echoing supplied keys", () => {
   const report = inspectEnvironment({ ...valid, OPENAI_API_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "" });
   assert.ok(report.failures.includes("OPENAI_API_KEY is required."));
