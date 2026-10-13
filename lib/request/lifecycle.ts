@@ -29,6 +29,7 @@ export type FailureReason =
   | "pricing_failed"
   | "burn_failed_retriable"
   | "burn_failed_terminal"
+  | "answer_persistence_failed"
   | "rate_limited"
   | "provider_unavailable";
 
