@@ -730,7 +730,7 @@ export async function processChatRequest({
         chargedUsd: pricing.chargedUsd,
         actualLlmUsd: pricing.actualLlmUsd,
         burned1337: pricing.burnAmountUi,
-        burnSignature: confirmedBurnSignature
+        burnSignature: burnSignatureForMessage
       },
       balance: {
         rawAmount: updatedBalance.rawAmount,
