@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "preflight": "node scripts/preflight.mjs",
     "preflight:test": "node --test scripts/preflight.test.mjs",
+    "request-body:test": "node --experimental-strip-types --test lib/http/read-bounded-json.test.mjs",
     "payment-recovery:test": "node --experimental-strip-types --test lib/chat/payment-recovery.test.mjs"
   },
   "dependencies": {
