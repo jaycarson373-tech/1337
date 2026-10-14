@@ -27,6 +27,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Test production preflight
         run: npm run preflight:test
+      - name: Test bounded chat request parsing
+        run: npm run request-body:test
       - name: Test payment recovery outcomes
         run: npm run payment-recovery:test
       - name: Lint

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedApiUser } from "@/lib/auth/api";
 import { ChatRequestError, processChatRequest } from "@/lib/chat/process-chat";
+import { readBoundedJson } from "@/lib/http/read-bounded-json";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +18,28 @@ export async function POST(request: Request) {
     return auth.error;
   }
 
-  let body: ChatRequestBody;
-
-  try {
-    body = (await request.json()) as ChatRequestBody;
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  const parsedBody = await readBoundedJson<unknown>(request);
+  if (!parsedBody.ok) {
+    return NextResponse.json(
+      { error: parsedBody.reason === "too_large" ? "Request body is too large." : "Invalid JSON body." },
+      { status: parsedBody.reason === "too_large" ? 413 : 400 }
+    );
   }
+
+  const rawBody = parsedBody.value;
+  if (
+    !rawBody ||
+    typeof rawBody !== "object" ||
+    Array.isArray(rawBody) ||
+    !("prompt" in rawBody) ||
+    typeof rawBody.prompt !== "string" ||
+    ("idempotencyKey" in rawBody && typeof rawBody.idempotencyKey !== "string") ||
+    ("chatId" in rawBody && rawBody.chatId !== null && typeof rawBody.chatId !== "string")
+  ) {
+    return NextResponse.json({ error: "Invalid chat request." }, { status: 400 });
+  }
+
+  const body = rawBody as ChatRequestBody;
 
   try {
     const result = await processChatRequest({
