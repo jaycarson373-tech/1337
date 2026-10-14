@@ -31,6 +31,8 @@ jobs:
         run: npm run request-body:test
       - name: Test payment recovery outcomes
         run: npm run payment-recovery:test
+      - name: Test LLM billing schedule guards
+        run: npm run llm-pricing:test
       - name: Lint
         run: npm run lint
       - name: Typecheck

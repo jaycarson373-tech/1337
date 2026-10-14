@@ -11,7 +11,8 @@
     "preflight": "node scripts/preflight.mjs",
     "preflight:test": "node --test scripts/preflight.test.mjs",
     "request-body:test": "node --experimental-strip-types --test lib/http/read-bounded-json.test.mjs",
-    "payment-recovery:test": "node --experimental-strip-types --test lib/chat/payment-recovery.test.mjs"
+    "payment-recovery:test": "node --experimental-strip-types --test lib/chat/payment-recovery.test.mjs",
+    "llm-pricing:test": "node --experimental-strip-types --test lib/llm/pricing.test.mjs"
   },
   "dependencies": {
     "@solana/spl-token": "^0.4.14",
