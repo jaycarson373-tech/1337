@@ -21,7 +21,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import { validateContext } from "@/lib/validation/context-validation";
 import { titleFromPrompt } from "@/lib/chat/title";
-import { classifyPaymentRecovery } from "@/lib/chat/payment-recovery";
+import { classifyPaymentRecovery, recordConfirmedBurn } from "@/lib/chat/payment-recovery";
 
 export class ChatRequestError extends Error {
   status: number;
@@ -270,6 +270,7 @@ export async function processChatRequest({
     userId: user.id
   });
   let chargeIdempotencyKey: string | null = null;
+  let burnIdempotencyKey: string | null = null;
   let confirmedBurnSignature: string | null = null;
   let assistantMessageSaved = false;
 
@@ -474,7 +475,7 @@ export async function processChatRequest({
     });
 
     chargeIdempotencyKey = `${requestRun.id}:charge`;
-    const burnIdempotencyKey = `${requestRun.id}:burn`;
+    burnIdempotencyKey = `${requestRun.id}:burn`;
 
     await supabase.from("query_charges").insert({
       user_id: user.id,
@@ -552,13 +553,6 @@ export async function processChatRequest({
 
     if (existingBurn?.status === "burn_confirmed" && existingBurn.signature) {
       confirmedBurnSignature = existingBurn.signature;
-      await supabase
-        .from("query_charges")
-        .update({
-          status: "burn_confirmed",
-          burn_signature: existingBurn.signature
-        })
-        .eq("idempotency_key", chargeIdempotencyKey);
     }
 
     let burnSignature = confirmedBurnSignature;
@@ -641,21 +635,6 @@ export async function processChatRequest({
         });
       }
 
-      await supabase
-        .from("burn_attempts")
-        .update({
-          status: "burn_confirmed",
-          signature: burnSignature
-        })
-        .eq("idempotency_key", burnIdempotencyKey);
-
-      await supabase
-        .from("query_charges")
-        .update({
-          status: "burn_confirmed",
-          burn_signature: burnSignature
-        })
-        .eq("idempotency_key", chargeIdempotencyKey);
     }
 
     requestRun = await transitionRequestRun({
@@ -667,6 +646,13 @@ export async function processChatRequest({
     if (!burnSignature) {
       throw new Error("Burn/send transaction was not confirmed.");
     }
+
+    await recordConfirmedBurn({
+      burnIdempotencyKey,
+      chargeIdempotencyKey,
+      signature: burnSignature,
+      supabase
+    });
 
     const burnSignatureForMessage = burnSignature;
 
@@ -757,13 +743,23 @@ export async function processChatRequest({
         : `The 1337 transfer was confirmed, but the answer could not be saved. Do not resubmit the prompt. Transaction: ${confirmedBurnSignature}`;
 
       if (chargeIdempotencyKey) {
+        if (burnIdempotencyKey) {
+          try {
+            await recordConfirmedBurn({
+              burnIdempotencyKey,
+              chargeIdempotencyKey,
+              signature: confirmedBurnSignature,
+              supabase
+            });
+          } catch {
+            // Preserve the on-chain signature and user-facing recovery message;
+            // a later reconciliation can repair database bookkeeping.
+          }
+        }
+
         await supabase
           .from("query_charges")
-          .update({
-            status: "burn_confirmed",
-            burn_signature: confirmedBurnSignature,
-            error: responseWasSaved ? message : recoveryNote
-          })
+          .update({ error: responseWasSaved ? message : recoveryNote })
           .eq("idempotency_key", chargeIdempotencyKey);
       }
 
