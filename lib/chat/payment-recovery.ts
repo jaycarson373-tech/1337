@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 
+type QueryChargeInsert = Database["public"]["Tables"]["query_charges"]["Insert"];
+
 export type PaymentRecoveryOutcome =
   | "payment_not_confirmed"
   | "payment_confirmed_answer_missing"
@@ -20,6 +22,23 @@ export function classifyPaymentRecovery({
   return assistantMessageSaved
     ? "payment_and_answer_saved"
     : "payment_confirmed_answer_missing";
+}
+
+/**
+ * The charge row is the durable quote/ledger record for an irreversible token
+ * burn. Do not proceed to the burn unless the row was accepted by Supabase.
+ */
+export async function recordCalculatedCharge({
+  charge,
+  supabase
+}: {
+  charge: QueryChargeInsert;
+  supabase: SupabaseClient<Database>;
+}) {
+  const { error } = await supabase.from("query_charges").insert(charge);
+  if (error) {
+    throw new Error(`Could not record calculated query charge: ${error.message}`);
+  }
 }
 
 /**

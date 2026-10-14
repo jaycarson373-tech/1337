@@ -21,7 +21,11 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import { validateContext } from "@/lib/validation/context-validation";
 import { titleFromPrompt } from "@/lib/chat/title";
-import { classifyPaymentRecovery, recordConfirmedBurn } from "@/lib/chat/payment-recovery";
+import {
+  classifyPaymentRecovery,
+  recordCalculatedCharge,
+  recordConfirmedBurn
+} from "@/lib/chat/payment-recovery";
 
 export class ChatRequestError extends Error {
   status: number;
@@ -477,30 +481,33 @@ export async function processChatRequest({
     chargeIdempotencyKey = `${requestRun.id}:charge`;
     burnIdempotencyKey = `${requestRun.id}:burn`;
 
-    await supabase.from("query_charges").insert({
-      user_id: user.id,
-      chat_id: activeChatId,
-      message_id: userMessage.id,
-      request_run_id: requestRun.id,
-      status: "calculated",
-      preflight_balance_raw: preflightBalance.rawAmount,
-      estimated_cost_usd: env.maxQueryUsd,
-      actual_llm_usd: pricing.actualLlmUsd,
-      charged_usd: pricing.chargedUsd,
-      token_price_usd: pricing.tokenPriceUsd,
-      burn_amount_ui: pricing.burnAmountUi,
-      burn_amount_raw: pricing.burnAmountRaw,
-      burn_destination: env.burnWalletAddress,
-      idempotency_key: chargeIdempotencyKey,
-      pricing_inputs: toJson({
-        min_query_usd: env.minQueryUsd,
-        max_query_usd: env.maxQueryUsd,
-        query_markup_multiplier: env.queryMarkupMultiplier,
-        token_decimals: preflightBalance.decimals,
-        model: llmResult.model,
-        input_tokens: llmResult.inputTokens,
-        output_tokens: llmResult.outputTokens
-      })
+    await recordCalculatedCharge({
+      supabase,
+      charge: {
+        user_id: user.id,
+        chat_id: activeChatId,
+        message_id: userMessage.id,
+        request_run_id: requestRun.id,
+        status: "calculated",
+        preflight_balance_raw: preflightBalance.rawAmount,
+        estimated_cost_usd: env.maxQueryUsd,
+        actual_llm_usd: pricing.actualLlmUsd,
+        charged_usd: pricing.chargedUsd,
+        token_price_usd: pricing.tokenPriceUsd,
+        burn_amount_ui: pricing.burnAmountUi,
+        burn_amount_raw: pricing.burnAmountRaw,
+        burn_destination: env.burnWalletAddress,
+        idempotency_key: chargeIdempotencyKey,
+        pricing_inputs: toJson({
+          min_query_usd: env.minQueryUsd,
+          max_query_usd: env.maxQueryUsd,
+          query_markup_multiplier: env.queryMarkupMultiplier,
+          token_decimals: preflightBalance.decimals,
+          model: llmResult.model,
+          input_tokens: llmResult.inputTokens,
+          output_tokens: llmResult.outputTokens
+        })
+      }
     });
 
     requestRun = await transitionRequestRun({
