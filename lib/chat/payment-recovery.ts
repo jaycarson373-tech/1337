@@ -57,17 +57,23 @@ export async function recordConfirmedBurn({
   signature: string;
   supabase: SupabaseClient<Database>;
 }) {
-  const { error: burnError } = await supabase
+  const { data: burnRow, error: burnError } = await supabase
     .from("burn_attempts")
     .update({ status: "burn_confirmed", signature })
-    .eq("idempotency_key", burnIdempotencyKey);
+    .eq("idempotency_key", burnIdempotencyKey)
+    .select("idempotency_key")
+    .maybeSingle();
 
   if (burnError) throw new Error(`Could not record confirmed burn attempt: ${burnError.message}`);
+  if (!burnRow) throw new Error("Could not record confirmed burn attempt: no matching ledger row.");
 
-  const { error: chargeError } = await supabase
+  const { data: chargeRow, error: chargeError } = await supabase
     .from("query_charges")
     .update({ status: "burn_confirmed", burn_signature: signature })
-    .eq("idempotency_key", chargeIdempotencyKey);
+    .eq("idempotency_key", chargeIdempotencyKey)
+    .select("idempotency_key")
+    .maybeSingle();
 
   if (chargeError) throw new Error(`Could not record confirmed query charge: ${chargeError.message}`);
+  if (!chargeRow) throw new Error("Could not record confirmed query charge: no matching ledger row.");
 }
