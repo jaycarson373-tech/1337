@@ -7,7 +7,10 @@
     "build": "next build",
     "lint": "eslint .",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "preflight": "node scripts/preflight.mjs",
+    "preflight:test": "node --test scripts/preflight.test.mjs",
+    "payment-recovery:test": "node --experimental-strip-types --test lib/chat/payment-recovery.test.mjs"
   },
   "dependencies": {
     "@solana/spl-token": "^0.4.14",

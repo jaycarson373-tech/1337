@@ -21,6 +21,11 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import { validateContext } from "@/lib/validation/context-validation";
 import { titleFromPrompt } from "@/lib/chat/title";
+import {
+  classifyPaymentRecovery,
+  recordCalculatedCharge,
+  recordConfirmedBurn
+} from "@/lib/chat/payment-recovery";
 
 export class ChatRequestError extends Error {
   status: number;
@@ -124,7 +129,8 @@ async function failRun({
   requestRun,
   status,
   supabase,
-  userId
+  userId,
+  noChargeConfirmation = true
 }: {
   chatId: string;
   failureReason: FailureReason;
@@ -133,6 +139,7 @@ async function failRun({
   status: number;
   supabase: ReturnType<typeof createSupabaseAdminClient>;
   userId: string;
+  noChargeConfirmation?: boolean;
 }) {
   if (requestRun) {
     await transitionRequestRun({
@@ -146,7 +153,9 @@ async function failRun({
 
   await insertSystemFailureMessage({
     chatId,
-    content: `${message} No 1337 was charged or burned.`,
+    content: noChargeConfirmation
+      ? `${message} No 1337 was charged or burned.`
+      : message,
     supabase,
     userId
   });
@@ -264,6 +273,10 @@ export async function processChatRequest({
     supabase,
     userId: user.id
   });
+  let chargeIdempotencyKey: string | null = null;
+  let burnIdempotencyKey: string | null = null;
+  let confirmedBurnSignature: string | null = null;
+  let assistantMessageSaved = false;
 
   try {
     requestRun = await transitionRequestRun({
@@ -465,33 +478,36 @@ export async function processChatRequest({
       tokenPriceUsd: env.tokenPriceUsdFallback
     });
 
-    const chargeIdempotencyKey = `${requestRun.id}:charge`;
-    const burnIdempotencyKey = `${requestRun.id}:burn`;
+    chargeIdempotencyKey = `${requestRun.id}:charge`;
+    burnIdempotencyKey = `${requestRun.id}:burn`;
 
-    await supabase.from("query_charges").insert({
-      user_id: user.id,
-      chat_id: activeChatId,
-      message_id: userMessage.id,
-      request_run_id: requestRun.id,
-      status: "calculated",
-      preflight_balance_raw: preflightBalance.rawAmount,
-      estimated_cost_usd: env.maxQueryUsd,
-      actual_llm_usd: pricing.actualLlmUsd,
-      charged_usd: pricing.chargedUsd,
-      token_price_usd: pricing.tokenPriceUsd,
-      burn_amount_ui: pricing.burnAmountUi,
-      burn_amount_raw: pricing.burnAmountRaw,
-      burn_destination: env.burnWalletAddress,
-      idempotency_key: chargeIdempotencyKey,
-      pricing_inputs: toJson({
-        min_query_usd: env.minQueryUsd,
-        max_query_usd: env.maxQueryUsd,
-        query_markup_multiplier: env.queryMarkupMultiplier,
-        token_decimals: preflightBalance.decimals,
-        model: llmResult.model,
-        input_tokens: llmResult.inputTokens,
-        output_tokens: llmResult.outputTokens
-      })
+    await recordCalculatedCharge({
+      supabase,
+      charge: {
+        user_id: user.id,
+        chat_id: activeChatId,
+        message_id: userMessage.id,
+        request_run_id: requestRun.id,
+        status: "calculated",
+        preflight_balance_raw: preflightBalance.rawAmount,
+        estimated_cost_usd: env.maxQueryUsd,
+        actual_llm_usd: pricing.actualLlmUsd,
+        charged_usd: pricing.chargedUsd,
+        token_price_usd: pricing.tokenPriceUsd,
+        burn_amount_ui: pricing.burnAmountUi,
+        burn_amount_raw: pricing.burnAmountRaw,
+        burn_destination: env.burnWalletAddress,
+        idempotency_key: chargeIdempotencyKey,
+        pricing_inputs: toJson({
+          min_query_usd: env.minQueryUsd,
+          max_query_usd: env.maxQueryUsd,
+          query_markup_multiplier: env.queryMarkupMultiplier,
+          token_decimals: preflightBalance.decimals,
+          model: llmResult.model,
+          input_tokens: llmResult.inputTokens,
+          output_tokens: llmResult.outputTokens
+        })
+      }
     });
 
     requestRun = await transitionRequestRun({
@@ -543,16 +559,10 @@ export async function processChatRequest({
     }
 
     if (existingBurn?.status === "burn_confirmed" && existingBurn.signature) {
-      await supabase
-        .from("query_charges")
-        .update({
-          status: "burn_confirmed",
-          burn_signature: existingBurn.signature
-        })
-        .eq("idempotency_key", chargeIdempotencyKey);
+      confirmedBurnSignature = existingBurn.signature;
     }
 
-    let burnSignature = existingBurn?.signature ?? null;
+    let burnSignature = confirmedBurnSignature;
 
     if (existingBurn && !burnSignature) {
       await failRun({
@@ -596,6 +606,9 @@ export async function processChatRequest({
           mint: env.tokenMint1337,
           owner: ownerKeypair
         });
+        // The transfer is confirmed on chain as soon as this resolves. Preserve that
+        // fact even if a later database write or response step fails.
+        confirmedBurnSignature = burnSignature;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown burn/send failure";
@@ -620,29 +633,15 @@ export async function processChatRequest({
           chatId: activeChatId,
           failureReason: "burn_failed_retriable",
           message:
-            "1337 generated an answer, but the burn/send transaction failed before completion.",
+            "1337 generated an answer, but the network did not confirm whether the token transfer completed. Do not retry until the transaction is reconciled.",
           requestRun,
           status: 502,
           supabase,
-          userId: user.id
+          userId: user.id,
+          noChargeConfirmation: false
         });
       }
 
-      await supabase
-        .from("burn_attempts")
-        .update({
-          status: "burn_confirmed",
-          signature: burnSignature
-        })
-        .eq("idempotency_key", burnIdempotencyKey);
-
-      await supabase
-        .from("query_charges")
-        .update({
-          status: "burn_confirmed",
-          burn_signature: burnSignature
-        })
-        .eq("idempotency_key", chargeIdempotencyKey);
     }
 
     requestRun = await transitionRequestRun({
@@ -655,7 +654,14 @@ export async function processChatRequest({
       throw new Error("Burn/send transaction was not confirmed.");
     }
 
-    const confirmedBurnSignature = burnSignature;
+    await recordConfirmedBurn({
+      burnIdempotencyKey,
+      chargeIdempotencyKey,
+      signature: burnSignature,
+      supabase
+    });
+
+    const burnSignatureForMessage = burnSignature;
 
     const finalAnswer = [
       llmResult.answer,
@@ -665,7 +671,7 @@ export async function processChatRequest({
       `1337 consumed: ${pricing.burnAmountUi.toLocaleString(undefined, {
         maximumFractionDigits: 6
       })}`,
-      `Transaction: ${confirmedBurnSignature}`
+      `Transaction: ${burnSignatureForMessage}`
     ].join("\n");
 
     const { data: assistantMessage, error: assistantError } = await supabase
@@ -677,7 +683,7 @@ export async function processChatRequest({
         content: finalAnswer,
         cost_usd: pricing.chargedUsd,
         burned_1337: pricing.burnAmountUi,
-        burn_signature: confirmedBurnSignature
+        burn_signature: burnSignatureForMessage
       })
       .select("*")
       .single();
@@ -685,6 +691,7 @@ export async function processChatRequest({
     if (assistantError) {
       throw new Error(assistantError.message);
     }
+    assistantMessageSaved = true;
 
     requestRun = await transitionRequestRun({
       metadata: toJson({
@@ -716,7 +723,7 @@ export async function processChatRequest({
         chargedUsd: pricing.chargedUsd,
         actualLlmUsd: pricing.actualLlmUsd,
         burned1337: pricing.burnAmountUi,
-        burnSignature: confirmedBurnSignature
+        burnSignature: burnSignatureForMessage
       },
       balance: {
         rawAmount: updatedBalance.rawAmount,
@@ -730,6 +737,62 @@ export async function processChatRequest({
     }
 
     const message = error instanceof Error ? error.message : "Unknown request failure";
+
+    const recoveryOutcome = classifyPaymentRecovery({
+      confirmedSignature: confirmedBurnSignature,
+      assistantMessageSaved
+    });
+
+    if (confirmedBurnSignature && recoveryOutcome !== "payment_not_confirmed") {
+      const responseWasSaved = recoveryOutcome === "payment_and_answer_saved";
+      const recoveryNote = responseWasSaved
+        ? "The 1337 transfer was confirmed and the answer was saved, but final request bookkeeping did not finish. Refresh the chat; do not resubmit the prompt."
+        : `The 1337 transfer was confirmed, but the answer could not be saved. Do not resubmit the prompt. Transaction: ${confirmedBurnSignature}`;
+
+      if (chargeIdempotencyKey) {
+        if (burnIdempotencyKey) {
+          try {
+            await recordConfirmedBurn({
+              burnIdempotencyKey,
+              chargeIdempotencyKey,
+              signature: confirmedBurnSignature,
+              supabase
+            });
+          } catch {
+            // Preserve the on-chain signature and user-facing recovery message;
+            // a later reconciliation can repair database bookkeeping.
+          }
+        }
+
+        await supabase
+          .from("query_charges")
+          .update({ error: responseWasSaved ? message : recoveryNote })
+          .eq("idempotency_key", chargeIdempotencyKey);
+      }
+
+      if (!responseWasSaved && requestRun) {
+        await transitionRequestRun({
+          failureReason: "answer_persistence_failed",
+          note: recoveryNote,
+          requestRun,
+          status: "failed",
+          supabase
+        });
+
+        await insertSystemFailureMessage({
+          chatId: activeChatId,
+          content: recoveryNote,
+          supabase,
+          userId: user.id
+        });
+      }
+
+      throw new ChatRequestError(
+        recoveryNote,
+        503,
+        responseWasSaved ? "provider_unavailable" : "answer_persistence_failed"
+      );
+    }
 
     if (requestRun) {
       await transitionRequestRun({
